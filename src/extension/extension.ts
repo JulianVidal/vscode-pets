@@ -598,6 +598,36 @@ export function activate(context: vscode.ExtensionContext) {
         ),
     );
 
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            'vscode-pets.select-theme',
+            async () => {
+                const selectedTheme = await vscode.window.showQuickPick(
+                    localize.stringListAsQuickPickItemList<Theme>(ALL_THEMES),
+                    {
+                        placeHolder: vscode.l10n.t('Select a theme'),
+                    },
+                );
+                await vscode.workspace
+                    .getConfiguration('vscode-pets')
+                    .update('theme',
+                            selectedTheme?.label,
+                            vscode.ConfigurationTarget.Global)
+                    .then(() => {
+                        const panel = getPetPanel();
+                        if (panel) {
+                            panel.updateTheme(
+                                getConfiguredTheme(),
+                                getConfiguredThemeKind(),
+                            );
+                            panel.update();
+                        }
+                    });
+                
+            },
+        ),
+    );
+
     // Listening to configuration changes
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(
